@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetCore.AutoRegisterDi" Version="2.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+	  <PackageReference Include="Unchase.Swashbuckle.AspNetCore.Extensions" Version="2.6.12" />
+	  <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+	  <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ULearn.Common\ULearn.Common.csproj" />
+    <ProjectReference Include="..\ULearn.Core\ULearn.Core.csproj" />
+    <ProjectReference Include="..\ULearn.DbModel\ULearn.DbModel.csproj" />
+    <ProjectReference Include="..\ULearn.ModelView\ULearn.ModelView.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="12.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.16" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		
+	  <ProjectReference Include="..\ULearn.Common\ULearn.Common.csproj" />
+	  <ProjectReference Include="..\ULearn.DbModel\ULearn.DbModel.csproj" />
+	  <ProjectReference Include="..\ULearn.EmailService\ULearn.EmailService.csproj" />
+	  <ProjectReference Include="..\ULearn.Infrastructure\ULearn.Infrastructure.csproj" />
+	  <ProjectReference Include="..\ULearn.ModelView\ULearn.ModelView.csproj" />
+	</ItemGroup>
+
+</Project>
