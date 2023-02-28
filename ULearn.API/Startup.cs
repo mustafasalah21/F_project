@@ -77,6 +77,17 @@ namespace ULearn.API
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ReportApiVersions = true;
             });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
+
 
             services.AddVersionedApiExplorer(options =>
             {
@@ -150,6 +161,17 @@ namespace ULearn.API
 
                 c.AddEnumsWithValuesFixFilters();
             });
+            services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -216,6 +238,9 @@ namespace ULearn.API
             {
                 endpoints.MapControllers();
             });
+            app.UseCors("AllowAllOrigins");
+
+
         }
     }
 }
