@@ -161,7 +161,7 @@ namespace ULearn.API
 
                 c.AddEnumsWithValuesFixFilters();
             });
-            services.AddCors(options =>
+           /* services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
         builder =>
@@ -170,7 +170,7 @@ namespace ULearn.API
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
-});
+});*/
 
 
 
@@ -218,11 +218,16 @@ namespace ULearn.API
             });
 
             app.ConfigureExceptionHandler(Log.Logger, env);
-
-            app.UseCors(
-                options => options.WithOrigins("http://localhost:4200/").AllowAnyMethod()
-                );
-
+            app.UseCors((opt) =>
+            {
+                opt.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            });
+            /* app.UseCors(
+                 options => options.WithOrigins("http://localhost:4200/").AllowAnyMethod()
+                 );
+            */
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -238,7 +243,6 @@ namespace ULearn.API
             {
                 endpoints.MapControllers();
             });
-            app.UseCors("AllowAllOrigins");
 
 
         }
