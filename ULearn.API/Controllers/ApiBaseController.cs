@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using System.Linq;
 using ULearn.Common.Extensions;
@@ -9,6 +10,7 @@ namespace ULearn.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [EnableCors("AllowAllOrigins")]
     public class ApiBaseController : Controller
     {
         private UserModel _loggedInUser;

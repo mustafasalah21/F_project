@@ -231,6 +231,7 @@ namespace ULearn.API
             app.UseAuthentication();
 
             app.UseRouting();
+            app.UseCors("AllowAllOrigins");
 
             app.UseAuthorization();
 
@@ -238,7 +239,6 @@ namespace ULearn.API
             {
                 endpoints.MapControllers();
             });
-            app.UseCors("AllowAllOrigins");
 
 
         }
