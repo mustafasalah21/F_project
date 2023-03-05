@@ -33,7 +33,8 @@ namespace ULearn.Core.Manager
             {
                 Name = courseRequest.Name,
                 Description = courseRequest.Description,
-                TeacherId = currentUser.Id
+                TeacherId = currentUser.Id,
+                Image = courseRequest.Image,
             }).Entity;
 
             _ulearndbContext.SaveChanges();
@@ -132,5 +133,6 @@ namespace ULearn.Core.Manager
             data.IsArchived = true;
             _ulearndbContext.SaveChanges();
         }
+       
     }
 }

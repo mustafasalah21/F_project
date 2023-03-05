@@ -217,8 +217,8 @@ namespace ULearn.API
                 }
             });
 
-            app.ConfigureExceptionHandler(Log.Logger, env);
-            app.UseCors((opt) =>
+         /*  app.ConfigureExceptionHandler(Log.Logger, env);
+           app.UseCors((opt) =>
             {
                 opt.AllowAnyOrigin()
                 .AllowAnyMethod()
