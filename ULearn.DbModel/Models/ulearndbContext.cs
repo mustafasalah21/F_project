@@ -35,7 +35,7 @@ namespace ULearn.DbModel.Models
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseMySQL("Server=MYSQL5025.site4now.net;Database=db_a77db7_ulearn;Uid=a77db7_ulearn;Pwd=Uu123456**");
-                //optionsBuilder.UseMySQL("Server=localhost;port=3306;user=root;password=1234;database=ulearndb;");
+                //optionsBuilder.UseMySQL("Server=127.0.0.1;port=3306;user=root;password=1234;database=ulearndb;");
             }
         }
 
