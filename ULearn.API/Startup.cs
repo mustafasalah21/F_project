@@ -236,6 +236,7 @@ namespace ULearn.API
             app.UseAuthentication();
 
             app.UseRouting();
+            app.UseCors("AllowAllOrigins");
 
             app.UseAuthorization();
 
