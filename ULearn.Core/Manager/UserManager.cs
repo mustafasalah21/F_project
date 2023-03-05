@@ -152,6 +152,7 @@ namespace ULearn.Core.Manager
             user.IsArchived = true;
             _ulearndbContext.SaveChanges();
         }
+        
 
         #endregion public 
 

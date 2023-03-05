@@ -63,8 +63,10 @@ namespace ULearn.API.Controllers
         [ULearnAuthorize(Permissions = "lesson_delete")]
         public IActionResult ArchiveLesson(int id)
         {
-            _LessonManager.ArchiveLesson(LoggedInUser, id);
+           _LessonManager.ArchiveLesson(LoggedInUser, id);
             return Ok();
+
+           
         }
 
         [Route("api/v{version:apiVersion}/update")]
