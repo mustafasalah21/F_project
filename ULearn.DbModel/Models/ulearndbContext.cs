@@ -34,8 +34,8 @@ namespace ULearn.DbModel.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseMySQL("Server=MYSQL5025.site4now.net;Database=db_a77db7_ulearn;Uid=a77db7_ulearn;Pwd=Uu123456**");
-                //optionsBuilder.UseMySQL("Server=localhost;port=3306;user=root;password=1234;database=ulearndb;");
+               // optionsBuilder.UseMySQL("Server=MYSQL5025.site4now.net;Database=db_a77db7_ulearn;Uid=a77db7_ulearn;Pwd=Uu123456**");
+                optionsBuilder.UseMySQL("Server=localhost;port=3306;user=root;password=1234;database=ulearndb;");
             }
         }
 
@@ -415,6 +415,10 @@ namespace ULearn.DbModel.Models
             });
 
             OnModelCreatingPartial(modelBuilder);
+
+          //  modelBuilder.Entity<Course>().HasQueryFilter(a => !a.IsArchived || IgnoreFilter);
+
+
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

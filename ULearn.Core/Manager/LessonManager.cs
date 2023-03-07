@@ -118,10 +118,17 @@ namespace ULearn.Core.Manager
                 throw new ServiceValidationException("You don't have permission to archive lesson");
             }
 
-            var data = _ulearndbContext.Lessons
-                                    .FirstOrDefault(a => a.Id == id)
-                                    ?? throw new ServiceValidationException("Invalid lesson id received");
-            data.IsArchived = true;
+            /*  var data = _ulearndbContext.Lessons
+                                      .FirstOrDefault(a => a.Id == id)
+                                      ?? throw new ServiceValidationException("Invalid lesson id received");
+              data.IsArchived = true;
+              _ulearndbContext.SaveChanges();*/
+            var Lesson = _ulearndbContext.Lessons.Find(id);
+            if (Lesson == null)
+            {
+                throw new ArgumentException("Lesson not found", nameof(id));
+            }
+            _ulearndbContext.Lessons.Remove(Lesson);
             _ulearndbContext.SaveChanges();
         }
     }

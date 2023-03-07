@@ -145,11 +145,18 @@ namespace ULearn.Core.Manager
                 throw new ServiceValidationException("You have no access to delete your self");
             }
 
-            var user = _ulearndbContext.Users
-                                    .FirstOrDefault(a => a.Id == id)
-                                    ?? throw new ServiceValidationException("User not found");
-            // for soft delete
-            user.IsArchived = true;
+            /*  var user = _ulearndbContext.Users
+                                      .FirstOrDefault(a => a.Id == id)
+                                      ?? throw new ServiceValidationException("User not found");
+              // for soft delete
+              user.IsArchived = true;
+              _ulearndbContext.SaveChanges();*/
+            var User = _ulearndbContext.Users.Find(id);
+            if (User == null)
+            {
+                throw new ArgumentException("Course not found", nameof(id));
+            }
+            _ulearndbContext.Users.Remove(User);
             _ulearndbContext.SaveChanges();
         }
         

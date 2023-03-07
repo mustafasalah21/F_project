@@ -61,6 +61,7 @@ namespace ULearn.API.Controllers
         [ULearnAuthorize(Permissions = "course_delete")]
         public IActionResult ArchiveCourse(int id)
         {
+
             _courseManager.ArchiveCourse(LoggedInUser, id);
             return Ok();
         }
@@ -71,6 +72,9 @@ namespace ULearn.API.Controllers
         [ULearnAuthorize(Permissions = "course_edit")]
         public IActionResult PutCourse(CourseRequest courseRequest)
         {
+
+             
+
             var result = _courseManager.PutCourse(LoggedInUser, courseRequest);
             return Ok(result);
         }

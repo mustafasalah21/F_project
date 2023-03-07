@@ -119,10 +119,17 @@ namespace ULearn.Core.Manager
                 throw new ServiceValidationException("You don't have permission to archive video");
             }
 
-            var data = _ulearndbContext.Videos
-                                    .FirstOrDefault(a => a.Id == id)
-                                    ?? throw new ServiceValidationException("Invalid video id received");
-            data.IsArchived = true;
+            /* var data = _ulearndbContext.Videos
+                                     .FirstOrDefault(a => a.Id == id)
+                                     ?? throw new ServiceValidationException("Invalid video id received");
+             data.IsArchived = true;
+             _ulearndbContext.SaveChanges();*/
+            var Video = _ulearndbContext.Videos.Find(id);
+            if (Video == null)
+            {
+                throw new ArgumentException("Course not found", nameof(id));
+            }
+            _ulearndbContext.Videos.Remove(Video);
             _ulearndbContext.SaveChanges();
         }
 
