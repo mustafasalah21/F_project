@@ -69,7 +69,8 @@ namespace ULearn.Core.Manager
             var queryRes = _ulearndbContext.Courses
                                            .Where(a => string.IsNullOrWhiteSpace(searchText)
                                                        || (a.Name.Contains(searchText)
-                                                       || a.Description.Contains(sortColumn)));
+                                                       || (a.Image.Contains(searchText)
+                                                       || a.Description.Contains(sortColumn))));
 
             if (!string.IsNullOrWhiteSpace(sortColumn)
                 && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
@@ -114,6 +115,7 @@ namespace ULearn.Core.Manager
                                 ?? throw new ServiceValidationException("Invalid course id received");
 
             course.Name = courseRequest.Name;
+            course.Image = courseRequest.Image;
             course.Description = courseRequest.Description;
 
             _ulearndbContext.SaveChanges();
