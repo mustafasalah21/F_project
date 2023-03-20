@@ -17,6 +17,7 @@ using ULearn.infrastructure;
 using ULearn.ModelView;
 using ULearn.ModelView.ModelView;
 using ULearn.ModelView.Response;
+using ULearn.ModelView.Result;
 using ULearn.ModelView.Static;
 
 namespace ULearn.Core.Manager
@@ -36,7 +37,58 @@ namespace ULearn.Core.Manager
             _emailSender = emailSender;
             _configurationSettings = configurationSettings;
         }
+        public List<User> GettAll()
+        {
+            var prodects = _ulearndbContext.Users.ToList();
+            return prodects;
+        }
+        /*  public UserResponse GetUsers(int page = 1,
+                                      int pageSize = 10,
+                                      string sortColumn = "",
+                                      string sortDirection = "ascending",
+                                      string searchText = "")
+          {
+              var queryRes = _ulearndbContext.Users
+                                             .Where(a => string.IsNullOrWhiteSpace(searchText)
+                                                         || (a.FirstName.Contains(searchText)
+                                                         || (a.LastName.Contains(searchText)
+                                                         || (a.Phone.Contains(searchText)
+                                                         || (a.Image.Contains(searchText)
+                                                         || a.Email.Contains(sortColumn))))));
 
+              if (!string.IsNullOrWhiteSpace(sortColumn)
+                  && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
+              {
+                  queryRes = queryRes.OrderBy(sortColumn);
+              }
+              else if (!string.IsNullOrWhiteSpace(sortColumn)
+                  && sortDirection.Equals("descending", StringComparison.InvariantCultureIgnoreCase))
+              {
+                  queryRes = queryRes.OrderByDescending(sortColumn);
+              }
+
+              var res = queryRes.GetPaged(page, pageSize);
+
+              var userIds = res.Data
+                               .Select(a => a.Id)
+                               .Distinct()
+                               .ToList();
+
+              var users = _ulearndbContext.Users
+                                          .Where(a => userIds.Contains(a.Id))
+                                          .ToDictionary(a => a.Id, x => _mapper.Map<UserResult>(x));
+
+              var data = new UserResponse
+              {
+                  Users = _mapper.Map<PagedResult<UserModel>>(res),
+                  User = users
+              };
+
+              data.Course.Sortable.Add("Title", "Title");
+              data.Course.Sortable.Add("CreatedDate", "Created Date");
+
+              return data;
+          }*/
         #region public 
 
         public LoginUserResponse Login(LoginModelView userReg)

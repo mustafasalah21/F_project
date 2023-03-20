@@ -31,8 +31,10 @@ namespace ULearn.API.Controllers
             var res = _userManager.SignUp(userReg);
             return Ok(res);
         }
+      
+        
 
-        [Route("api/v{version:apiVersion}/login")]
+            [Route("api/v{version:apiVersion}/login")]
         [HttpPost]
         [AllowAnonymous]
         [MapToApiVersion("1")]
@@ -40,6 +42,14 @@ namespace ULearn.API.Controllers
         {
             var res = _userManager.Login(userReg);
             return Ok(res);
+        }
+        [Route("api/v{version:apiVersion}/Get all user")]
+        [HttpPost]
+        [AllowAnonymous]
+        [MapToApiVersion("1")]
+        public IActionResult GetAll()
+        {
+            return Ok(_userManager.GettAll());
         }
 
         [Route("api/v{version:apiVersion}/fileretrive/profilepic")]

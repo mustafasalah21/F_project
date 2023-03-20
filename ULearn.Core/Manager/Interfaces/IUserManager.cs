@@ -1,4 +1,6 @@
-﻿using ULearn.ModelView.ModelView;
+﻿using System.Collections.Generic;
+using ULearn.DbModel.Models.DB;
+using ULearn.ModelView.ModelView;
 using ULearn.ModelView.Response;
 
 namespace ULearn.Core.Manager.Interfaces
@@ -8,6 +10,7 @@ namespace ULearn.Core.Manager.Interfaces
         UserModel UpdateProfile(UserModel currentUser, UserModel request);
 
         LoginUserResponse Login(LoginModelView userReg);
+        List<User> GettAll();
 
         LoginUserResponse SignUp(UserRegistrationModel userReg);
 
