@@ -25,7 +25,7 @@ namespace ULearn.Core.Manager
             _mapper = mapper;
         }
 
-        public CourseModel CreateCourse(UserModel currentUser, CourseRequest courseRequest)
+        public async Task<CourseModel> CreateCourse(UserModel currentUser, CourseRequest courseRequest)
         {
             Course course = null;
 
@@ -37,7 +37,7 @@ namespace ULearn.Core.Manager
                 Image = courseRequest.Image,
             }).Entity;
 
-            _ulearndbContext.SaveChanges();
+            await _ulearndbContext.SaveChangesAsync();
             return _mapper.Map<CourseModel>(course);
         }
 

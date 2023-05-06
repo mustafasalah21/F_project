@@ -23,7 +23,9 @@ namespace ULearn.API.Attributes
 
                 var stringId = context.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value;
 
-                int.TryParse(stringId, out int id);
+               // this point you have to check parser parses your id successfuly
+               if (! int.TryParse(stringId, out int id))
+                 throw new Exception("can not parse user id");
 
                 var user = new UserModel { Id = id };
 
