@@ -27,6 +27,8 @@ namespace ULearn.DbModel.Models.DB
         public DateTime UpdatedDate { get; set; }
         public bool IsArchived { get; set; }
 
+        public byte[] CourseFile{get;set;}
+
         public virtual User Teacher { get; set; }
         public virtual ICollection<Lesson> Lessons { get; set; }
     }

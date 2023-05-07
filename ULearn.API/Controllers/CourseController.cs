@@ -78,5 +78,23 @@ namespace ULearn.API.Controllers
             var result = _courseManager.PutCourse(LoggedInUser, courseRequest);
             return Ok(result);
         }
+
+
+
+        [HttpGet]
+        [Route("api/v{version:apiVersion}/DownloadCourse/{id}")]
+        public async Task<IACtionresult> DownloadCourse(int id)
+        {
+
+            var result = _courseManager.GetCourse(LoggedInUser, id);
+            if (result != null)
+            {
+                // fetch image data from database
+
+                return File(result.CourseFile, "video/mp4");
+            }
+
+            return new EmptyResult();
+        }
     }
 }

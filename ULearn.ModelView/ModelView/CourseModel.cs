@@ -9,5 +9,7 @@
 
         public int Rate { get; set; }
         public int TeacherId { get; set; }
+
+        public byte[] CourseFile{get;set;}
     }
 }

@@ -7,5 +7,7 @@
         public string Description { get; set; }
         public string Image { get; set; }
 
+         public byte[] CourseFile { get; set; }
+
     }
 }
