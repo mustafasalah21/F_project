@@ -11,7 +11,8 @@ namespace ULearn.API.Controllers
     [Route("[controller]")]
     [ApiController]
     [EnableCors("AllowAllOrigins")]
-    public class ApiBaseController : Controller
+    
+    public abstract class ApiBaseController : Controller
     {
         private UserModel _loggedInUser;
 

@@ -70,6 +70,9 @@ namespace ULearn.API
             services.AddSingleton(sp => _mapperConfiguration.CreateMapper());
 
             services.AddLogging();
+            
+            // All of your business must be declared like this in your startup for DI
+            services.AddTransient<ICourseManager,CourseManager>();
 
             services.AddApiVersioning(options =>
             {

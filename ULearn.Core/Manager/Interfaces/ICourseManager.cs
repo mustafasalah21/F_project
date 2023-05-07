@@ -7,7 +7,7 @@ namespace ULearn.Core.Manager.Interfaces
     public interface ICourseManager
     {
         void ArchiveCourse(UserModel currentUser, int id);
-        CourseModel CreateCourse(UserModel currentUser, CourseRequest courseRequest);
+        Task<CourseModel> CreateCourse(UserModel currentUser, CourseRequest courseRequest);
         CourseModel GetCourse(UserModel currentUser, int id);
         CourseResponse GetCourses(int page = 1, 
                                   int pageSize = 10, 

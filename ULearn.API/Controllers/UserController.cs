@@ -29,6 +29,7 @@ namespace ULearn.API.Controllers
         public IActionResult SignUp([FromBody] UserRegistrationModel userReg)
         {
             var res = _userManager.SignUp(userReg);
+            _userManager.find
             return Ok(res);
         }
       
