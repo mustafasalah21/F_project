@@ -25,6 +25,10 @@ namespace LMS.Core.Mapper
             CreateMap<LessonResult, Lesson>().ReverseMap();
             CreateMap<PagedResult<LessonModel>, PagedResult<Lesson>>().ReverseMap();
 
+            CreateMap<StudentCourseModel, StudentCourse>().ReverseMap();
+            //CreateMap<StudentCourseResult, StudentCourse>().ReverseMap();
+            CreateMap<PagedResult<StudentCourseModel>, PagedResult<StudentCourse>>().ReverseMap();
+
 
             CreateMap<VideoModel, Video>().ReverseMap();
             CreateMap<PagedResult<VideoModel>, PagedResult<Video>>().ReverseMap();

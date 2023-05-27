@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ULearn.Common.Extensions;
 using ULearn.Core.Manager.Interfaces;
+using ULearn.Core.Managers;
 using ULearn.DbModel.Models;
 using ULearn.DbModel.Models.DB;
 using ULearn.ModelView.ModelView;
@@ -18,23 +19,25 @@ namespace ULearn.Core.Manager
     {
         public ulearndbContext _ulearndbContext;
         private IMapper _mapper;
+		private readonly IHelperManager _helperManager;
 
-        public CourseManager(ulearndbContext ulearndbContext, IMapper mapper)
+		public CourseManager(ulearndbContext ulearndbContext, IMapper mapper, IHelperManager helperManager)
         {
             _ulearndbContext = ulearndbContext;
             _mapper = mapper;
+            _helperManager = helperManager; 
         }
 
         public CourseModel CreateCourse(UserModel currentUser, CourseRequest courseRequest)
         {
             Course course = null;
-
-            course = _ulearndbContext.Courses.Add(new Course
+			string imgurl = _helperManager.SaveImage(courseRequest.Base64Image, "wwwroot\\images\\courses");
+			course = _ulearndbContext.Courses.Add(new Course
             {
                 Name = courseRequest.Name,
                 Description = courseRequest.Description,
                 TeacherId = currentUser.Id,
-                Image = courseRequest.Image,
+                Image = imgurl,
             }).Entity;
 
             _ulearndbContext.SaveChanges();
@@ -56,7 +59,7 @@ namespace ULearn.Core.Manager
                                                                 && (isAllView || a.TeacherId == currentUser.Id)))
                                                            && a.Id == id)
                                       ?? throw new ServiceValidationException("Invalid course id received");
-
+            res.Image=_helperManager.GetBase64FromImagePath(res.Image);
             return _mapper.Map<CourseModel>(res);
         }
 
@@ -71,7 +74,10 @@ namespace ULearn.Core.Manager
                                                        || (a.Name.Contains(searchText)
                                                        || (a.Image.Contains(searchText)
                                                        || a.Description.Contains(sortColumn))));
-
+            foreach (var a in queryRes)
+            {
+                a.Image = _helperManager.GetBase64FromImagePath (a.Image);
+            }
             if (!string.IsNullOrWhiteSpace(sortColumn)
                 && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -89,9 +95,14 @@ namespace ULearn.Core.Manager
                              .Select(a => a.TeacherId)
                              .Distinct()
                              .ToList();
+            var usrs = _ulearndbContext.Users
+                                        .Where(a => userIds.Contains(a.Id));
+            foreach(var u in usrs)
+            {
+                u.Image= _helperManager.GetBase64FromImagePath(u.Image);
+			}
 
-            var users = _ulearndbContext.Users
-                                        .Where(a => userIds.Contains(a.Id))
+			var users = usrs
                                         .ToDictionary(a => a.Id, x => _mapper.Map<UserResult>(x));
 
             var data = new CourseResponse
@@ -113,9 +124,9 @@ namespace ULearn.Core.Manager
             course = _ulearndbContext.Courses
                                 .FirstOrDefault(a => a.Id == courseRequest.Id)
                                 ?? throw new ServiceValidationException("Invalid course id received");
-
-            course.Name = courseRequest.Name;
-            course.Image = courseRequest.Image;
+			string imgurl = _helperManager.SaveImage(courseRequest.Base64Image, "wwwroot\\images\\courses");
+			course.Name = courseRequest.Name;
+            course.Image = imgurl;
             course.Description = courseRequest.Description;
 
             _ulearndbContext.SaveChanges();

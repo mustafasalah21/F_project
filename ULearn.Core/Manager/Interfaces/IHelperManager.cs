@@ -6,5 +6,6 @@ namespace ULearn.Core.Managers
     {
         string SaveImage(string base64img, string baseFolder);
         string Base64ToString(string base64String);
+        string GetBase64FromImagePath(string imagePath);
     }
 }

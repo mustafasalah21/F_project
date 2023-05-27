@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using ULearn.API.Attributes;
 using ULearn.Core.Manager.Interfaces;
+using ULearn.Core.Managers;
 using ULearn.ModelView.ModelView;
 
 namespace ULearn.API.Controllers
@@ -12,14 +13,16 @@ namespace ULearn.API.Controllers
     [ApiVersion("1")]
     public class UserController : ApiBaseController
     {
+        private readonly IHelperManager _helperManager;
         private IUserManager _userManager;
         private readonly ILogger<UserController> _logger;
 
         public UserController(ILogger<UserController> logger,
-                              IUserManager userManager)
+                              IUserManager userManager,IHelperManager helperManager)
         {
             _logger = logger;
             _userManager = userManager;
+            _helperManager = helperManager;
         }
 
         [Route("api/v{version:apiVersion}/signUp")]
@@ -28,7 +31,8 @@ namespace ULearn.API.Controllers
         [MapToApiVersion("1")]
         public IActionResult SignUp([FromBody] UserRegistrationModel userReg)
         {
-            var res = _userManager.SignUp(userReg);
+
+			var res = _userManager.SignUp(userReg);
             return Ok(res);
         }
       
@@ -40,7 +44,7 @@ namespace ULearn.API.Controllers
         [MapToApiVersion("1")]
         public IActionResult Login([FromBody] LoginModelView userReg)
         {
-            var res = _userManager.Login(userReg);
+			ModelView.Response.LoginUserResponse res = _userManager.Login(userReg);
             return Ok(res);
         }
         [Route("api/v{version:apiVersion}/Get all user")]
@@ -85,9 +89,18 @@ namespace ULearn.API.Controllers
             return Ok();
         }
 
+		[HttpPost]
+		[Route("api/v{version:apiVersion}/changepassword")]
+		[MapToApiVersion("1")]
+		[Authorize]
+		public IActionResult ChangePassword([FromBody] ChangePasswordModelView changePasswordModel)
+		{
+			_userManager.ChangePassword(LoggedInUser, changePasswordModel);
+			return Ok("Password changed successfully");
+		}
 
 
-        [Route("api/v{version:apiVersion}/Confirmation")]
+		[Route("api/v{version:apiVersion}/Confirmation")]
         [HttpPost]
         [MapToApiVersion("1")]
         public IActionResult Confirmation(string confirmationLink)

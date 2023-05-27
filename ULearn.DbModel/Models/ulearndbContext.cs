@@ -35,7 +35,7 @@ namespace ULearn.DbModel.Models
             if (!optionsBuilder.IsConfigured)
             {
 
-                optionsBuilder.UseMySQL("Server=localhost;port=3306;user=root;password=1234;database=ulearndb;");
+                optionsBuilder.UseMySQL("Server=localhost;port=3306;user=root;password='1234';database=ulearndb;");
 
               //  optionsBuilder.UseMySQL("Server=MYSQL5025.site4now.net;Database=db_a77db7_ulearn;Uid=a77db7_ulearn;Pwd=Uu123456**");
           
@@ -257,7 +257,7 @@ namespace ULearn.DbModel.Models
 
             modelBuilder.Entity<StudentCourse>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("studentcourse");
 

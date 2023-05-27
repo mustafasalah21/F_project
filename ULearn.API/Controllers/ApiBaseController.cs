@@ -48,7 +48,7 @@ namespace ULearn.API.Controllers
                 var commonManager = HttpContext.RequestServices.GetService(typeof(ICommonManager)) as ICommonManager;
 
                 _loggedInUser = commonManager.GetUserRole(new UserModel { Id = id });
-
+                
                 return _loggedInUser;
             }
         }

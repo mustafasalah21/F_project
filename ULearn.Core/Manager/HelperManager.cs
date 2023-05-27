@@ -27,8 +27,10 @@ namespace ULearn.Core.Manager
                 {
                     throw new ServiceValidationException("Invalid folder name for upload images");
                 }
-
-                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), baseFolder);
+                if (string.IsNullOrWhiteSpace(base64img))
+                    return "";
+                var currDir=Directory.GetCurrentDirectory();
+                var folderPath = Path.Combine(currDir, baseFolder);
                 if (!Directory.Exists(folderPath))
                 {
                     Directory.CreateDirectory(folderPath);
@@ -40,7 +42,7 @@ namespace ULearn.Core.Manager
                     return "";
                 }
 
-                base64img = base64Array[1];
+                base64img = base64Array[0];
                 var fileName = $"{Guid.NewGuid()}{".png"}".Replace("-", "", StringComparison.InvariantCultureIgnoreCase);
                 if (!string.IsNullOrWhiteSpace(folderPath))
                 {
@@ -63,5 +65,26 @@ namespace ULearn.Core.Manager
             byte[] data = Convert.FromBase64String(base64String);
             return Encoding.ASCII.GetString(data);
         }
-    }
+		public string GetBase64FromImagePath(string imagePath)
+		{
+			try
+			{
+                if (string.IsNullOrWhiteSpace(imagePath))
+                {
+                    return "";
+                    //throw new ServiceValidationException("Invalid image path");
+				}
+				var currDir = Directory.GetCurrentDirectory();
+				var folderPath = Path.Combine(currDir, imagePath);
+
+				byte[] imageBytes = File.ReadAllBytes(folderPath);
+				string base64Image = Convert.ToBase64String(imageBytes);
+				return base64Image;
+			}
+			catch (Exception ex)
+			{
+				throw new ServiceValidationException(ex.Message);
+			}
+		}
+	}
 }

@@ -33,7 +33,7 @@ namespace ULearn.API.Controllers
 
         [Route("api/v{version:apiVersion}/getAll")]
         [HttpGet]
-        //[ULearnAuthorize(Permissions = "courses_all_view")]
+        [ULearnAuthorize(Permissions = "courses_all_view")]
         [MapToApiVersion("1")]
         public IActionResult GetCourses(int page = 1,
                                       int pageSize = 5,

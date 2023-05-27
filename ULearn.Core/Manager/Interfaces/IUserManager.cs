@@ -17,5 +17,6 @@ namespace ULearn.Core.Manager.Interfaces
         void DeleteUser(UserModel currentUser, int id);
 
         UserModel Confirmation(string ConfirmationLink);
-    }
+		void ChangePassword(UserModel loggedInUser, ChangePasswordModelView changePasswordModel);
+	}
 }

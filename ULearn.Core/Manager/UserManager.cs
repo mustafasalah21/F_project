@@ -5,10 +5,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ULearn.Common.Extensions;
 using ULearn.Common.Helper;
 using ULearn.Core.Manager.Interfaces;
+using ULearn.Core.Managers;
 using ULearn.DbModel.Models;
 using ULearn.DbModel.Models.DB;
 using ULearn.EmailService;
@@ -28,83 +30,102 @@ namespace ULearn.Core.Manager
         private IMapper _mapper;
         private readonly IEmailSender _emailSender;
         private readonly IConfigurationSettings _configurationSettings;
+		private readonly IHelperManager _helperManager;
 
-
-        public UserManager(ulearndbContext ulearndbContext, IMapper mapper, IEmailSender emailSender, IConfigurationSettings configurationSettings)
+		public UserManager(ulearndbContext ulearndbContext, IMapper mapper, IEmailSender emailSender, IConfigurationSettings configurationSettings,IHelperManager helperManager)
         {
             _ulearndbContext = ulearndbContext;
             _mapper = mapper;
             _emailSender = emailSender;
             _configurationSettings = configurationSettings;
+            _helperManager = helperManager;
         }
-        public List<User> GettAll()
+      /*  public List<User> GettAll()
         {
             var prodects = _ulearndbContext.Users.ToList();
             return prodects;
-        }
-        /*  public UserResponse GetUsers(int page = 1,
-                                      int pageSize = 10,
-                                      string sortColumn = "",
-                                      string sortDirection = "ascending",
-                                      string searchText = "")
-          {
-              var queryRes = _ulearndbContext.Users
-                                             .Where(a => string.IsNullOrWhiteSpace(searchText)
-                                                         || (a.FirstName.Contains(searchText)
-                                                         || (a.LastName.Contains(searchText)
-                                                         || (a.Phone.Contains(searchText)
-                                                         || (a.Image.Contains(searchText)
-                                                         || a.Email.Contains(sortColumn))))));
-
-              if (!string.IsNullOrWhiteSpace(sortColumn)
-                  && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
-              {
-                  queryRes = queryRes.OrderBy(sortColumn);
-              }
-              else if (!string.IsNullOrWhiteSpace(sortColumn)
-                  && sortDirection.Equals("descending", StringComparison.InvariantCultureIgnoreCase))
-              {
-                  queryRes = queryRes.OrderByDescending(sortColumn);
-              }
-
-              var res = queryRes.GetPaged(page, pageSize);
-
-              var userIds = res.Data
-                               .Select(a => a.Id)
-                               .Distinct()
-                               .ToList();
-
-              var users = _ulearndbContext.Users
-                                          .Where(a => userIds.Contains(a.Id))
-                                          .ToDictionary(a => a.Id, x => _mapper.Map<UserResult>(x));
-
-              var data = new UserResponse
-              {
-                  Users = _mapper.Map<PagedResult<UserModel>>(res),
-                  User = users
-              };
-
-              data.Course.Sortable.Add("Title", "Title");
-              data.Course.Sortable.Add("CreatedDate", "Created Date");
-
-              return data;
-          }*/
-        #region public 
-
-        public LoginUserResponse Login(LoginModelView userReg)
+        }*/
+        public List<User> GettAll()
         {
-            var user = _ulearndbContext.Users
+            var res = _ulearndbContext.Users
+                .Include(m => m.UserRoles)
+                .ThenInclude(m => m.Role)
+                .ToList();
+            return res;
+
+        }/*  public UserResponse GetUsers(int page = 1,
+                                          int pageSize = 10,
+                                          string sortColumn = "",
+                                          string sortDirection = "ascending",
+                                          string searchText = "")
+              {
+                  var queryRes = _ulearndbContext.Users
+                                                 .Where(a => string.IsNullOrWhiteSpace(searchText)
+                                                             || (a.FirstName.Contains(searchText)
+                                                             || (a.LastName.Contains(searchText)
+                                                             || (a.Phone.Contains(searchText)
+                                                             || (a.Image.Contains(searchText)
+                                                             || a.Email.Contains(sortColumn))))));
+
+                  if (!string.IsNullOrWhiteSpace(sortColumn)
+                      && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
+                  {
+                      queryRes = queryRes.OrderBy(sortColumn);
+                  }
+                  else if (!string.IsNullOrWhiteSpace(sortColumn)
+                      && sortDirection.Equals("descending", StringComparison.InvariantCultureIgnoreCase))
+                  {
+                      queryRes = queryRes.OrderByDescending(sortColumn);
+                  }
+
+                  var res = queryRes.GetPaged(page, pageSize);
+
+                  var userIds = res.Data
+                                   .Select(a => a.Id)
+                                   .Distinct()
+                                   .ToList();
+
+                  var users = _ulearndbContext.Users
+                                              .Where(a => userIds.Contains(a.Id))
+                                              .ToDictionary(a => a.Id, x => _mapper.Map<UserResult>(x));
+
+                  var data = new UserResponse
+                  {
+                      Users = _mapper.Map<PagedResult<UserModel>>(res),
+                      User = users
+                  };
+
+                  data.Course.Sortable.Add("Title", "Title");
+                  data.Course.Sortable.Add("CreatedDate", "Created Date");
+
+                  return data;
+              }*/
+            #region public 
+
+            public LoginUserResponse Login(LoginModelView userReg)
+        {
+			User user = _ulearndbContext.Users
+                .Include(m=>m.UserRoles)
                                    .FirstOrDefault(a => a.Email
                                                            .Equals(userReg.Email,
                                                                    StringComparison.InvariantCultureIgnoreCase));
-
-            if (user == null || !VerifyHashPassword(userReg.Password, user.Password))
+            
+			if (user == null || !VerifyHashPassword(userReg.Password, user.Password))
             {
                 throw new ServiceValidationException(300, "Invalid user name or password received");
             }
 
-            var res = _mapper.Map<LoginUserResponse>(user);
-            res.Token = $"Bearer {GenerateJWTToken(user)}";
+			LoginUserResponse res = _mapper.Map<LoginUserResponse>(user);
+            res.Roles = new();
+            var userRoles=user.UserRoles.ToList();
+            var _roles = _ulearndbContext.Roles.ToList();
+            foreach(var role in _roles)
+            {
+                if(userRoles.Any(m=>m.RoleId == role.Id))
+                    res.Roles.Add(role.Name);
+            }
+            res.Token = $"Bearer {GenerateJWTToken(user, res.Roles)}";
+            res.Image=_helperManager.GetBase64FromImagePath(user.Image);
             return res;
         }
 
@@ -118,22 +139,23 @@ namespace ULearn.Core.Manager
             }
 
             var hashedPassword = HashPassword(userReg.Password);
+			string imgurl = _helperManager.SaveImage(userReg.Base64Image, "wwwroot\\images");
 
-            var user = _ulearndbContext.Users.Add(new User
+			var user = _ulearndbContext.Users.Add(new User
             {
                 FirstName = userReg.FirstName,
                 LastName = userReg.LastName,
                 Email = userReg.Email.ToLower(),
                 Password = hashedPassword,
-                Image = string.Empty,
-                Phone = string.Empty,
+                Image = imgurl,
+                Phone = userReg.Phone??"",
                 ConfirmationLink = Guid.NewGuid().ToString().Replace("-", "").ToString()
             }).Entity;
 
             _ulearndbContext.SaveChanges();
 
 
-            var builder = new EmailBuilder(ActionInvocationTypeEnum.EmailConfirmation,
+			var builder = new EmailBuilder(ActionInvocationTypeEnum.EmailConfirmation,
                                 new Dictionary<string, string>
                                 {
                                     { "AssigneeName", $"{userReg.FirstName} {userReg.LastName}" },
@@ -144,7 +166,7 @@ namespace ULearn.Core.Manager
             _emailSender.SendEmail(message);
 
             var res = _mapper.Map<LoginUserResponse>(user);
-            res.Token = $"Bearer {GenerateJWTToken(user)}";
+            res.Token = $"Bearer {GenerateJWTToken(user,new())}";
 
             return res;
         }
@@ -212,12 +234,35 @@ namespace ULearn.Core.Manager
             _ulearndbContext.SaveChanges();
         }
         
+        public void ChangePassword(UserModel loggedInUser, ChangePasswordModelView changePasswordModel)
+        {
+            try
+            {
+                var user = _ulearndbContext.Users
+								   .FirstOrDefault(a => a.Id == loggedInUser.Id)
+								   ?? throw new ServiceValidationException("User not found");
+				var hashedPassword = HashPassword(changePasswordModel.NewPassword);
+				var hashedoldPassword = HashPassword(changePasswordModel.OldPassword);
+                if(!VerifyHashPassword(changePasswordModel.OldPassword, user.Password))
+                {
+					throw new ServiceValidationException("old password is not correct");
+				}
+                user.Password = hashedPassword;
+                
+                _ulearndbContext.SaveChanges();
 
-        #endregion public 
+			}
+            catch (Exception ex)
+            {
+                throw new ServiceValidationException(ex.Message, ex);
+            }
+			
+		}
+		#endregion public 
 
-        #region private 
+		#region private 
 
-        private static string HashPassword(string password)
+		private static string HashPassword(string password)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
 
@@ -229,17 +274,20 @@ namespace ULearn.Core.Manager
             return BCrypt.Net.BCrypt.Verify(password, HashedPasword);
         }
 
-        private string GenerateJWTToken(User user)
+        private string GenerateJWTToken(User user,List<string> roles)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurationSettings.JwtKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            _ = roles.ToString();
+            string rs = string.Join(",", roles.Select(s => "\"" + s + "\"")) + "]";
 
-            var claims = new[]
+			var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, $"{user.FirstName} {user.LastName}"),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim("Id", user.Id.ToString()),
                 new Claim("FirstName", user.FirstName),
+                new Claim("Roles",string.Join(",", roles)),
                 new Claim("DateOfJoining", user.CreatedDate.ToString("yyyy-MM-dd")),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
