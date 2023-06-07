@@ -55,6 +55,15 @@ namespace ULearn.API.Controllers
         {
             return Ok(_userManager.GettAll());
         }
+        [HttpPut]
+        [MapToApiVersion("1")]
+        [Authorize]
+
+        public IActionResult ChangeUserRole(int userId, string newRole)
+        {
+            _userManager.ChangeUserRole(LoggedInUser, userId, newRole);
+            return Ok();
+        }
 
         [Route("api/v{version:apiVersion}/fileretrive/profilepic")]
         [HttpGet]

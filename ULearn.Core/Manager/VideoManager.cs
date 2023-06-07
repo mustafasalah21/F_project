@@ -10,6 +10,7 @@ using ULearn.ModelView.Response;
 using ULearn.Core.Manager.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using ULearn.ModelView.Result;
+using ULearn.Core.Managers;
 
 namespace ULearn.Core.Manager
 {
@@ -17,23 +18,25 @@ namespace ULearn.Core.Manager
     {
         public ulearndbContext _ulearndbContext;
         private IMapper _mapper;
-
-        public VideoManager(ulearndbContext ulearndbContext, IMapper mapper)
+        private IHelperManager _helperManager;
+        public VideoManager(ulearndbContext ulearndbContext, IMapper mapper,IHelperManager helperManager)
         {
             _ulearndbContext = ulearndbContext;
             _mapper = mapper;
+            _helperManager = helperManager;
         }
 
         public VideoModel CreateVideo(VideoRequest videoRequest)
         {
             Video video = null;
-
+            string url  = _helperManager.SaveImage(videoRequest.Base64Image, "wwwroot\\images\\Videos");
             video = _ulearndbContext.Videos.Add(new Video
             {
                 Name = videoRequest.Name,
                 Description = videoRequest.Description,
                 Url = videoRequest.Url,
-                LessonId = videoRequest.LessonId
+                LessonId = videoRequest.LessonId,
+                Image = url
             }).Entity;
 
             _ulearndbContext.SaveChanges();
@@ -46,6 +49,7 @@ namespace ULearn.Core.Manager
                                       .Include("Lesson")
                                       .FirstOrDefault(a => a.Id == id)
                                       ?? throw new ServiceValidationException("Invalid blog id received");
+            res.Image=_helperManager.GetBase64FromImagePath(res.Image);
 
             return _mapper.Map<VideoModel>(res);
         }
@@ -60,7 +64,10 @@ namespace ULearn.Core.Manager
                                            .Where(a => string.IsNullOrWhiteSpace(searchText)
                                                        || (a.Name.Contains(searchText)
                                                        || a.Description.Contains(sortColumn)));
-
+            foreach (var a in queryRes)
+            {
+                a.Image = _helperManager.GetBase64FromImagePath(a.Image);
+            }
             if (!string.IsNullOrWhiteSpace(sortColumn)
                 && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -81,12 +88,18 @@ namespace ULearn.Core.Manager
 
             var lessons = _ulearndbContext.Lessons
                                         .Where(a => lessonsIds.Contains(a.Id))
-                                        .ToDictionary(a => a.Id, x => _mapper.Map<LessonResult>(x));
+                                        ;
+            //.ToDictionary(a => a.Id, x => _mapper.Map<LessonResult>(x));
+            foreach (var u in lessons)
+            {
+                u.Image = _helperManager.GetBase64FromImagePath(u.Image);
+            }
+            var lsns= lessons.ToDictionary(a => a.Id, x => _mapper.Map<LessonResult>(x));
 
             var data = new VideoResponse
             {
                 Video = _mapper.Map<PagedResult<VideoModel>>(res),
-                Lesson = lessons
+                Lesson = lsns
             };
 
             data.Video.Sortable.Add("Title", "Title");
@@ -107,7 +120,7 @@ namespace ULearn.Core.Manager
             video.Description = videoRequest.Description;
             video.LessonId = videoRequest.LessonId;
             video.Url = videoRequest.Url;
-
+            video.Image = _helperManager.SaveImage(videoRequest.Base64Image, "wwwroot\\images\\Videos");
             _ulearndbContext.SaveChanges();
             return _mapper.Map<VideoModel>(video);
         }
@@ -133,14 +146,14 @@ namespace ULearn.Core.Manager
             _ulearndbContext.SaveChanges();
         }
 
-        public VideoResponse GetCourses(int page = 1, int pageSize = 10, string sortColumn = "", string sortDirection = "ascending", string searchText = "")
-        {
-            throw new NotImplementedException();
-        }
+        //public VideoResponse GetCourses(int page = 1, int pageSize = 10, string sortColumn = "", string sortDirection = "ascending", string searchText = "")
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public VideoModel PutCourse(UserModel currentUser, VideoRequest VideoRequest)
-        {
-            throw new NotImplementedException();
-        }
+        //public VideoModel PutCourse(UserModel currentUser, VideoRequest VideoRequest)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

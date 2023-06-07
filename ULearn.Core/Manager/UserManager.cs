@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ULearn.Common.Extensions;
@@ -40,69 +41,94 @@ namespace ULearn.Core.Manager
             _configurationSettings = configurationSettings;
             _helperManager = helperManager;
         }
-      /*  public List<User> GettAll()
-        {
-            var prodects = _ulearndbContext.Users.ToList();
-            return prodects;
-        }*/
         public List<User> GettAll()
         {
             var res = _ulearndbContext.Users
-                .Include(m => m.UserRoles)
-                .ThenInclude(m => m.Role)
+                .Include(m=>m.UserRoles)
+                .ThenInclude(m=>m.Role)
                 .ToList();
             return res;
+        }
+        
+        
+      
+      
+        public void ChangeUserRole(UserModel loggedInUser, int userId, string newRole)
+        {
+            if (!loggedInUser.IsSuperAdmin)
+            {
+                throw new ServiceValidationException("You don't have permission to change user role");
+            }
+            var role = _ulearndbContext.Roles.FirstOrDefault(a => a.Name == newRole);
+            if (role == null)
+            {
+                throw new ServiceValidationException("the role is not exist");
+            }
+            var user = _ulearndbContext.Users.FirstOrDefault(a => a.Id == userId);
+            if (user == null)
+            {
+                throw new ServiceValidationException("user not exist");
+            }
+            var userroles = _ulearndbContext.UserRoles.Where(m => m.UserId == userId).ToList();
+            foreach (var userrole in userroles)
+            {
+                _ulearndbContext.Remove(userrole);
+                _ulearndbContext.SaveChanges();
+            }
+            _ulearndbContext.UserRoles.Add(new() { UserId = userId, RoleId = role.Id, CreatedDate = new DateTime(), UpdatedDate = new DateTime() });
+            _ulearndbContext.SaveChanges();
+        }
 
-        }/*  public UserResponse GetUsers(int page = 1,
-                                          int pageSize = 10,
-                                          string sortColumn = "",
-                                          string sortDirection = "ascending",
-                                          string searchText = "")
+        /*  public UserResponse GetUsers(int page = 1,
+                                      int pageSize = 10,
+                                      string sortColumn = "",
+                                      string sortDirection = "ascending",
+                                      string searchText = "")
+          {
+              var queryRes = _ulearndbContext.Users
+                                             .Where(a => string.IsNullOrWhiteSpace(searchText)
+                                                         || (a.FirstName.Contains(searchText)
+                                                         || (a.LastName.Contains(searchText)
+                                                         || (a.Phone.Contains(searchText)
+                                                         || (a.Image.Contains(searchText)
+                                                         || a.Email.Contains(sortColumn))))));
+
+              if (!string.IsNullOrWhiteSpace(sortColumn)
+                  && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
               {
-                  var queryRes = _ulearndbContext.Users
-                                                 .Where(a => string.IsNullOrWhiteSpace(searchText)
-                                                             || (a.FirstName.Contains(searchText)
-                                                             || (a.LastName.Contains(searchText)
-                                                             || (a.Phone.Contains(searchText)
-                                                             || (a.Image.Contains(searchText)
-                                                             || a.Email.Contains(sortColumn))))));
+                  queryRes = queryRes.OrderBy(sortColumn);
+              }
+              else if (!string.IsNullOrWhiteSpace(sortColumn)
+                  && sortDirection.Equals("descending", StringComparison.InvariantCultureIgnoreCase))
+              {
+                  queryRes = queryRes.OrderByDescending(sortColumn);
+              }
 
-                  if (!string.IsNullOrWhiteSpace(sortColumn)
-                      && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
-                  {
-                      queryRes = queryRes.OrderBy(sortColumn);
-                  }
-                  else if (!string.IsNullOrWhiteSpace(sortColumn)
-                      && sortDirection.Equals("descending", StringComparison.InvariantCultureIgnoreCase))
-                  {
-                      queryRes = queryRes.OrderByDescending(sortColumn);
-                  }
+              var res = queryRes.GetPaged(page, pageSize);
 
-                  var res = queryRes.GetPaged(page, pageSize);
+              var userIds = res.Data
+                               .Select(a => a.Id)
+                               .Distinct()
+                               .ToList();
 
-                  var userIds = res.Data
-                                   .Select(a => a.Id)
-                                   .Distinct()
-                                   .ToList();
+              var users = _ulearndbContext.Users
+                                          .Where(a => userIds.Contains(a.Id))
+                                          .ToDictionary(a => a.Id, x => _mapper.Map<UserResult>(x));
 
-                  var users = _ulearndbContext.Users
-                                              .Where(a => userIds.Contains(a.Id))
-                                              .ToDictionary(a => a.Id, x => _mapper.Map<UserResult>(x));
+              var data = new UserResponse
+              {
+                  Users = _mapper.Map<PagedResult<UserModel>>(res),
+                  User = users
+              };
 
-                  var data = new UserResponse
-                  {
-                      Users = _mapper.Map<PagedResult<UserModel>>(res),
-                      User = users
-                  };
+              data.Course.Sortable.Add("Title", "Title");
+              data.Course.Sortable.Add("CreatedDate", "Created Date");
 
-                  data.Course.Sortable.Add("Title", "Title");
-                  data.Course.Sortable.Add("CreatedDate", "Created Date");
+              return data;
+          }*/
+        #region public 
 
-                  return data;
-              }*/
-            #region public 
-
-            public LoginUserResponse Login(LoginModelView userReg)
+        public LoginUserResponse Login(LoginModelView userReg)
         {
 			User user = _ulearndbContext.Users
                 .Include(m=>m.UserRoles)
@@ -152,10 +178,30 @@ namespace ULearn.Core.Manager
                 ConfirmationLink = Guid.NewGuid().ToString().Replace("-", "").ToString()
             }).Entity;
 
-            _ulearndbContext.SaveChanges();
+            
 
+        //    if (userReg.Role.Length > 2)
+            {
+            //    var role = _ulearndbContext.Roles.FirstOrDefault(m => m.Name == userReg.Role);
+              //  if(role!=null)
+                {
+                 //   int roleid=role.Id;
+                    int uid = user.Id;
+                    _ulearndbContext.UserRoles.Add(new()
+                    {
+                        CreatedDate = DateTime.Now,
+                       // RoleId = roleid,
+                        UpdatedDate = DateTime.Now,
+                        UserId = uid,
+                        IsArchived = false,
 
-			var builder = new EmailBuilder(ActionInvocationTypeEnum.EmailConfirmation,
+                    });
+                    _ulearndbContext.SaveChanges();
+                }
+
+            }
+
+		/*	var builder = new EmailBuilder(ActionInvocationTypeEnum.EmailConfirmation,
                                 new Dictionary<string, string>
                                 {
                                     { "AssigneeName", $"{userReg.FirstName} {userReg.LastName}" },
@@ -163,7 +209,7 @@ namespace ULearn.Core.Manager
                                 }, "https://localhost:44309");
 
             var message = new Message(new string[] { user.Email }, builder.GetTitle(), builder.GetBody());
-            _emailSender.SendEmail(message);
+            _emailSender.SendEmail(message);*/
 
             var res = _mapper.Map<LoginUserResponse>(user);
             res.Token = $"Bearer {GenerateJWTToken(user,new())}";

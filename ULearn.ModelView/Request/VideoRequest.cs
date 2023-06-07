@@ -10,5 +10,6 @@ namespace ULearn.ModelView.Request
         [DefaultValue("")]
         public string Url { get; set; }
         public int LessonId { get; set; }
+        public string Base64Image { get; set; }
     }
 }

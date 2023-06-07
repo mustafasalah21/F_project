@@ -45,11 +45,15 @@ namespace ULearn.Core.Manager
 			{
 				throw new ServiceValidationException("there is no course with this id");
 			}
-			StudentCourse subscribe ;
+			var check = _ulearndbContext.StudentCourses.Any(m => (m.StudentId == request.StudentId && m.CourseId == request.CourseId));
+            if (check)
+            {
+                throw new ServiceValidationException("This student already regestered in this course");
+            }
+            StudentCourse subscribe ;
 
 			subscribe = _ulearndbContext.StudentCourses.Add(new()
 			{
-
 				CourseId = request.CourseId,
 				CreatedDate =DateTime.Now,
 				UpdatedDate = DateTime.Now,

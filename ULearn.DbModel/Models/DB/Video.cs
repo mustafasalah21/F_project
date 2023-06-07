@@ -21,5 +21,6 @@ namespace ULearn.DbModel.Models.DB
         public bool IsArchived { get; set; }
 
         public virtual Lesson Lesson { get; set; }
+        public string Image { get; set; }
     }
 }

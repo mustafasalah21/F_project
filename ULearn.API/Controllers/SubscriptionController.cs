@@ -20,8 +20,8 @@ namespace ULearn.API.Controllers
 		[Route("api/v{version:apiVersion}/create")]
 		[HttpPost]
 		[MapToApiVersion("1")]
-		[Authorize]
-		[ULearnAuthorize(Permissions = "student_course_create")]
+		//[Authorize]
+		//[ULearnAuthorize(Permissions = "student_course_create")]
 		public IActionResult CreateSubscription(StudentCourseRequest Request)
 		{
 			var result = _subscriptionManager.CreateCourseSubscription(Request);

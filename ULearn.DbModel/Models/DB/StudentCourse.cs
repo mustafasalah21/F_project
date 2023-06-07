@@ -8,8 +8,7 @@ namespace ULearn.DbModel.Models.DB
     public partial class StudentCourse
     {
         [Key]
-        public int ID { get; set; }
-
+        public int Id { get; set; }
         public int CourseId { get; set; }
         public int StudentId { get; set; }
         [Timestamp]

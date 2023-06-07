@@ -9,6 +9,7 @@ using ULearn.ModelView.Request;
 using Microsoft.EntityFrameworkCore;
 using ULearn.ModelView.Response;
 using ULearn.ModelView.Result;
+using ULearn.Core.Managers;
 
 namespace ULearn.Core.Manager
 {
@@ -16,22 +17,25 @@ namespace ULearn.Core.Manager
     {
         public ulearndbContext _ulearndbContext;
         private IMapper _mapper;
-
-        public LessonManager(ulearndbContext ulearndbContext, IMapper mapper)
+        private readonly IHelperManager _helperManager;
+        public LessonManager(ulearndbContext ulearndbContext, IMapper mapper, IHelperManager helperManager)
         {
             _ulearndbContext = ulearndbContext;
             _mapper = mapper;
+            _helperManager = helperManager; 
+
         }
 
         public LessonModel CreateLesson(LessonRequest lessonRequest)
         {
             Lesson lesson = null;
-
+            string imgurl = _helperManager.SaveImage(lessonRequest.Base64Image, "wwwroot\\images\\Lessons");
             lesson = _ulearndbContext.Lessons.Add(new Lesson
             {
                 Name = lessonRequest.Name,
                 Description = lessonRequest.Description,
-                CourseId = lessonRequest.CourseId
+                CourseId = lessonRequest.CourseId,
+                Image= imgurl
             }).Entity;
 
             _ulearndbContext.SaveChanges();
@@ -44,7 +48,7 @@ namespace ULearn.Core.Manager
                                       .Include("Course")
                                       .FirstOrDefault(a => a.Id == id)
                                       ?? throw new ServiceValidationException("Invalid lesson id received");
-
+            res.Image = _helperManager.GetBase64FromImagePath(res.Image);
             return _mapper.Map<LessonModel>(res);
         }
 
@@ -58,7 +62,10 @@ namespace ULearn.Core.Manager
                                            .Where(a => string.IsNullOrWhiteSpace(searchText)
                                                        || (a.Name.Contains(searchText)
                                                        || a.Description.Contains(sortColumn)));
-
+            foreach (var a in queryRes)
+            {
+                a.Image = _helperManager.GetBase64FromImagePath(a.Image);
+            }
             if (!string.IsNullOrWhiteSpace(sortColumn)
                 && sortDirection.Equals("ascending", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -79,12 +86,17 @@ namespace ULearn.Core.Manager
 
             var courses = _ulearndbContext.Courses
                                           .Where(a => courseIds.Contains(a.Id))
-                                          .ToDictionary(a => a.Id, x => _mapper.Map<CourseResult>(x));
-
+                                          ;
+            //.ToDictionary(a => a.Id, x => _mapper.Map<CourseResult>(x));
+            foreach (var u in courses)
+            {
+                u.Image = _helperManager.GetBase64FromImagePath(u.Image);
+            }
+            var cs=courses.ToDictionary(a => a.Id, x => _mapper.Map<CourseResult>(x));
             var data = new LessonResponse
             {
                 Lesson = _mapper.Map<PagedResult<LessonModel>>(res),
-                Course = courses
+                Course = cs
             };
 
             data.Lesson.Sortable.Add("Name", "Lesson Name");
@@ -93,21 +105,23 @@ namespace ULearn.Core.Manager
             return data;
         }
 
-        public LessonModel PutLesson(LessonRequest LessonRequest)
+        public LessonModel PutLesson(LessonRequest lessonRequest)
         {
             Lesson Lesson = null;
 
             Lesson = _ulearndbContext.Lessons
-                                .FirstOrDefault(a => a.Id == LessonRequest.Id)
+                                .FirstOrDefault(a => a.Id == lessonRequest.Id)
                                 ?? throw new ServiceValidationException("Invalid lesson id received");
+            string imgurl = _helperManager.SaveImage(lessonRequest.Base64Image, "wwwroot\\images\\Lessons");
 
-            Lesson.Name = LessonRequest.Name;
-            Lesson.Description = LessonRequest.Description;
-            Lesson.Id = LessonRequest.Id;
-            Lesson.CourseId = LessonRequest.CourseId;
-
+            Lesson.Name = lessonRequest.Name;
+            Lesson.Description = lessonRequest.Description;
+            Lesson.Id = lessonRequest.Id;
+            Lesson.CourseId = lessonRequest.CourseId;
+            Lesson.Image = imgurl;
 
             _ulearndbContext.SaveChanges();
+            Lesson.Image = lessonRequest.Base64Image;
             return _mapper.Map<LessonModel>(Lesson);
         }
 

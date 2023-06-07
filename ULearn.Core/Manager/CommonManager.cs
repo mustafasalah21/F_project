@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using ULearn.Common.Extensions;
@@ -30,7 +31,7 @@ namespace ULearn.Core.Manager
 
             //mappedUser.Permissions = _ulearndbContext.UserPermissionView.Where(a => a.UserId == user.Id).ToList();
             var userRoles = _ulearndbContext.UserRoles.Where(m => m.UserId == user.Id).ToList();
-			var rolesPermissions = _ulearndbContext.RolePermissions.ToList();
+            var rolesPermissions = _ulearndbContext.RolePermissions.Include(m => m.Role).ToList();    
             List<RolePermission> userRolesPermissions = new();
             List<Permission> Permissions = new();
             var permissionList = _ulearndbContext.Permissions.ToList();

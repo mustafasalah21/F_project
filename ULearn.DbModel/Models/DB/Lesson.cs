@@ -25,5 +25,6 @@ namespace ULearn.DbModel.Models.DB
 
         public virtual Course Course { get; set; }
         public virtual ICollection<Video> Videos { get; set; }
+        public string Image { get; set; }
     }
 }

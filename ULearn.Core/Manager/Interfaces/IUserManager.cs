@@ -8,7 +8,7 @@ namespace ULearn.Core.Manager.Interfaces
     public interface IUserManager : IManager
     {
         UserModel UpdateProfile(UserModel currentUser, UserModel request);
-
+        void ChangeUserRole(UserModel loggedInUser, int userId, string newRole);
         LoginUserResponse Login(LoginModelView userReg);
         List<User> GettAll();
 
